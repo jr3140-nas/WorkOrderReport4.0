@@ -1,0 +1,199 @@
+import io
+from datetime import datetime
+from typing import Dict, Any, List
+
+import pandas as pd
+import numpy as np
+import streamlit as st
+
+# -------------------------------
+# HARD-CODED REFERENCE DATA (from your Excel files)
+# -------------------------------
+
+CRAFT_ORDER = ['Turns', 'EAF Mech Days', 'EAF Elec Days', 'AOD Mech Days', 'AOD Elec Days', 'Alloy Mech Days', 'Caster Mech Days', 'Caster Elec Days', 'WTP Mech Days', 'Baghouse Mech Days', 'Preheater Elec Days', 'Segment Shop', 'Utilities Mech Days', 'HVAC Elec Days']
+
+ADDRESS_BOOK = [{'AddressBookNumber': '1103079', 'Name': 'CONKEL, JOHNATHON J', 'Craft Description': 'Alloy Mech Days'}, {'AddressBookNumber': '817150', 'Name': 'PETERS, JESSE DANIEL', 'Craft Description': 'AOD Elec Days'}, {'AddressBookNumber': '648991', 'Name': 'JONES, TERRELL D.', 'Craft Description': 'AOD Elec Days'}, {'AddressBookNumber': '136792', 'Name': 'MCKINNEY, CHRIS ALVIE', 'Craft Description': 'AOD Mech Days'}, {'AddressBookNumber': '1142730', 'Name': 'CHRISTERSON, NATHANIEL BENJAMEN', 'Craft Description': 'Baghouse Mech Days'}, {'AddressBookNumber': '1150094', 'Name': 'WRIGHT, KEVIN BRADLEY', 'Craft Description': 'Baghouse Mech Days'}, {'AddressBookNumber': '1064305', 'Name': 'DALTON II, JEFFERY WAYNE', 'Craft Description': 'Caster Elec Days'}, {'AddressBookNumber': '1115109', 'Name': 'GANDER, ANTHONY T', 'Craft Description': 'Caster Elec Days'}, {'AddressBookNumber': '1055943', 'Name': 'HEFFELMIRE, RONALD SCOTT', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '1112813', 'Name': 'KOONS, ANDREW LEWIS ALAN', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '95636', 'Name': 'MORRISON, GEORGE D.', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '586013', 'Name': 'DENNIS, SHAWN MICHAEL', 'Craft Description': 'EAF Elec Days'}, {'AddressBookNumber': '1137121', 'Name': 'STEWART, THOMAS JASON', 'Craft Description': 'EAF Mech Days'}, {'AddressBookNumber': '1106595', 'Name': 'WASH, MICHAEL DAVID', 'Craft Description': 'EAF Mech Days'}, {'AddressBookNumber': '178909', 'Name': 'LEMASTER, DANIEL M.', 'Craft Description': 'HVAC Elec Days'}, {'AddressBookNumber': '1115133', 'Name': 'BROCK, TREVOR COLE', 'Craft Description': 'Preheater Elec Days'}, {'AddressBookNumber': '133760', 'Name': 'BRIGHTWELL, JEFFERY W.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '173665', 'Name': 'CRAIG, JAMES D.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '336719', 'Name': 'DEEN, ALAN J.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1151409', 'Name': 'DEMAREE, MATTHEW CHRISTOPHER', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '848802', 'Name': 'KLOSS, CHARLES W.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '95644', 'Name': 'SMITH, JAMES M.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1104469', 'Name': 'WATSON, JACOB LEYTON', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1103976', 'Name': 'BAUGHMAN, THOMAS BRUCE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1066095', 'Name': 'HELTON, MICHAEL AJ', 'Craft Description': 'Turns'}, {'AddressBookNumber': '44231', 'Name': 'REED, BRIAN L.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1167030', 'Name': 'STROUD, MATTHEW T.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '164380', 'Name': 'WARREN, MARK L.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '185050', 'Name': 'WHOBREY, BRADLEY G.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1103132', 'Name': 'WILLIAMS II, STEVEN FOSTER', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1106747', 'Name': 'BANTA, BENJAMIN GAYLE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1165384', 'Name': 'BOHART, WILLIAM M.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1144250', 'Name': 'CAREY, JOSEPH MICHAEL', 'Craft Description': 'Turns'}, {'AddressBookNumber': '770363', 'Name': 'CORMAN, DAVID H.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1149608', 'Name': 'DIEDERICH, JOSEPH W', 'Craft Description': 'Turns'}, {'AddressBookNumber': '193471', 'Name': 'GRAY, DENNIS C.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '109866', 'Name': 'HOWARD, LARRY D.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1141761', 'Name': 'PHILLIPS, TIMOTHY CRAIG RYAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '272006', 'Name': 'SEE, JOHN JOURDAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '106260', 'Name': 'SPILLMAN, WILLIAM H.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1131299', 'Name': 'STEWART, BRADFORD LEE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1109876', 'Name': 'STOKES, MATHEW DAVID', 'Craft Description': 'Turns'}, {'AddressBookNumber': '234448', 'Name': 'THOMAS, CODY JORDAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1107352', 'Name': 'WATKINS, KENNETH EDWARD', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1096665', 'Name': 'ATWELL, TALON BRADLEY', 'Craft Description': 'Turns'}, {'AddressBookNumber': '108986', 'Name': 'ROGERS, CHARLES D.', 'Craft Description': 'Utilities Mech Days'}, {'AddressBookNumber': '206092', 'Name': 'TURNER, SHANE M.', 'Craft Description': 'Utilities Mech Days'}, {'AddressBookNumber': '1089377', 'Name': 'ROSE, CAMERON CHASE', 'Craft Description': 'WTP Mech Days'}]
+
+# -------------------------------
+# Helpers
+# -------------------------------
+
+REQUIRED_TIME_COLUMNS = [
+    "AddressBookNumber", "Name", "Production Date", "OrderNumber", "Sum of Hours.",
+    "Hours Estimated", "Status", "Type", "PMFrequency", "Description",
+    "Department", "Location", "Equipment", "PM Number", "PM"
+]
+
+def _find_header_row(df_raw: pd.DataFrame) -> int:
+    first_col = df_raw.columns[0]
+    mask = df_raw[first_col].astype(str).str.strip() == "AddressBookNumber"
+    idx = df_raw.index[mask].tolist()
+    if idx:
+        return idx[0]
+    for i in range(min(10, len(df_raw))):
+        row_vals = df_raw.iloc[i].astype(str).str.strip().tolist()
+        if "AddressBookNumber" in row_vals and "Production Date" in row_vals:
+            return i
+    raise ValueError("Could not locate header row containing 'AddressBookNumber'.")
+
+def _read_excel_twice(file) -> tuple[pd.DataFrame, pd.DataFrame]:
+    data = file.read()
+    df_raw = pd.read_excel(io.BytesIO(data), header=None, dtype=str)
+    df_hdr = pd.read_excel(io.BytesIO(data))
+    return df_raw, df_hdr
+
+def load_timeworkbook(file_like) -> pd.DataFrame:
+    df_raw, _ = _read_excel_twice(file_like)
+    header_row = _find_header_row(df_raw)
+    file_like.seek(0)
+    df = pd.read_excel(file_like, header=header_row)
+    df = df.loc[:, ~df.columns.astype(str).str.contains(r"^Unnamed")]
+    # Ensure required columns
+    missing = [c for c in REQUIRED_TIME_COLUMNS if c not in df.columns]
+    for c in missing:
+        df[c] = pd.NA
+    df["AddressBookNumber"] = df["AddressBookNumber"].astype(str).str.strip()
+    if "Production Date" in df.columns:
+        df["Production Date"] = pd.to_datetime(df["Production Date"], errors="coerce").dt.date
+    if "Sum of Hours." in df.columns and "Hours" not in df.columns:
+        df = df.rename(columns={"Sum of Hours.": "Hours"})
+    return df
+
+def get_craft_order_df() -> pd.DataFrame:
+    df = pd.DataFrame({"Craft Description": CRAFT_ORDER})
+    return df
+
+def get_address_book_df() -> pd.DataFrame:
+    df = pd.DataFrame(ADDRESS_BOOK)[["AddressBookNumber", "Name", "Craft Description"]]
+    df["AddressBookNumber"] = df["AddressBookNumber"].astype(str).str.strip()
+    df["Name"] = df["Name"].astype(str).str.strip()
+    df["Craft Description"] = df["Craft Description"].astype(str).str.strip()
+    return df
+
+def _apply_craft_category(df: pd.DataFrame, order_df: pd.DataFrame) -> pd.DataFrame:
+    order = order_df["Craft Description"].tolist()
+    seen, ordered = set(), []
+    for c in order:
+        if c not in seen:
+            ordered.append(c); seen.add(c)
+    categories = ordered + ["Unassigned"]
+    df["Craft Description"] = df["Craft Description"].fillna("Unassigned")
+    df["Craft Description"] = pd.Categorical(df["Craft Description"], categories=categories, ordered=True)
+    return df
+
+def prepare_report_data(time_df: pd.DataFrame,
+                        addr_df: pd.DataFrame,
+                        craft_order_df: pd.DataFrame,
+                        selected_date) -> Dict[str, Any]:
+    f = time_df[time_df["Production Date"] == selected_date].copy()
+    f["AddressBookNumber"] = f["AddressBookNumber"].astype(str).str.strip()
+    addr_df["AddressBookNumber"] = addr_df["AddressBookNumber"].astype(str).str.strip()
+    merged = f.merge(
+        addr_df[["AddressBookNumber", "Craft Description", "Name"]].rename(columns={"Name": "AB_Name"}),
+        on="AddressBookNumber",
+        how="left"
+    )
+    merged["Name"] = merged["Name"].fillna(merged["AB_Name"])
+    merged = merged.drop(columns=["AB_Name"])
+
+    unmapped = []
+    mask_unmapped = merged["Craft Description"].isna() | (merged["Craft Description"].astype(str).str.len() == 0)
+    if mask_unmapped.any():
+        unmapped = merged.loc[mask_unmapped, ["AddressBookNumber", "Name"]].drop_duplicates().to_dict("records")
+        merged.loc[mask_unmapped, "Craft Description"] = "Unassigned"
+
+    merged = _apply_craft_category(merged, craft_order_df)
+
+    detail_cols = [c for c in [
+        "Name", "AddressBookNumber", "OrderNumber", "Description", "Hours",
+        "Department", "Location", "Equipment", "PM Number", "Status", "Type", "PMFrequency"
+    ] if c in merged.columns]
+
+    groups_payload: List = []
+    categories = list(merged["Craft Description"].cat.categories)
+    for craft in categories:
+        g = merged[merged["Craft Description"] == craft]
+        if g.empty: continue
+
+        person_summary = (
+            g.groupby(["Name", "AddressBookNumber"], dropna=False)
+             .agg(Hours=("Hours", "sum"), WorkOrders=("OrderNumber", "nunique"))
+             .reset_index()
+             .sort_values(["Hours", "Name"], ascending=[False, True])
+        )
+        person_summary["Hours"] = pd.to_numeric(person_summary["Hours"], errors="coerce").fillna(0.0).round(2)
+
+        detail = g[detail_cols].copy()
+        if "Name" in detail.columns and "OrderNumber" in detail.columns:
+            detail = detail.sort_values(["Name", "OrderNumber"])
+
+        groups_payload.append((str(craft), {"person_summary": person_summary, "detail": detail}))
+
+    full_detail = merged[detail_cols + ["Craft Description"]].copy()
+    full_detail = full_detail.sort_values(["Craft Description", "Name", "OrderNumber"])
+
+    return {"groups": groups_payload, "full_detail": full_detail, "unmapped_people": unmapped}
+
+# -------------------------------
+# Streamlit UI (only one upload required)
+# -------------------------------
+
+st.set_page_config(page_title="Work Order Daily Report", layout="wide")
+st.title("Work Order Reporting App — Flat, Hard-Coded Reference")
+st.caption("Upload the Time on Work Order export. Craft order and address book are hard-coded from your provided files.")
+
+with st.sidebar:
+    st.header("1) Upload file")
+    time_file = st.file_uploader("Time on Work Order (.xlsx) – REQUIRED", type=["xlsx"], key="time")
+    st.markdown("---")
+    st.header("2) Options")
+    show_detail = st.checkbox("Show detailed work order rows", value=True)
+    show_person_summary = st.checkbox("Show per-person summary", value=True)
+
+if not time_file:
+    st.info("⬆️ Upload the **Time on Work Order** export to proceed.")
+    st.stop()
+
+try:
+    time_df = load_timeworkbook(time_file)
+    craft_df = get_craft_order_df()
+    addr_df = get_address_book_df()
+except Exception as e:
+    st.error(f"File load error: {e}")
+    st.stop()
+
+if "Production Date" not in time_df.columns or time_df["Production Date"].dropna().empty:
+    st.error("No valid 'Production Date' values found in the Time on Work Order file.")
+    st.stop()
+
+dates = sorted(pd.to_datetime(time_df["Production Date"]).dt.date.unique())
+date_labels = [datetime.strftime(pd.to_datetime(d), "%m/%d/%Y") for d in dates]
+label_to_date = dict(zip(date_labels, dates))
+selected_label = st.selectbox("Select Production Date", options=date_labels, index=len(date_labels)-1)
+selected_date = label_to_date[selected_label]
+
+report = prepare_report_data(time_df, addr_df, craft_df, selected_date)
+st.markdown(f"### Report for {selected_label}")
+
+if report["unmapped_people"]:
+    with st.expander("⚠️ Unmapped personnel (not found in Address Book)", expanded=False):
+        st.dataframe(pd.DataFrame(report["unmapped_people"], columns=["AddressBookNumber", "Name"]).sort_values("Name"))
+
+for craft_name, payload in report["groups"]:
+    st.markdown(f"#### {craft_name}")
+    if show_person_summary and not payload["person_summary"].empty:
+        st.subheader("Per-Person Summary (Hours & WO Count)")
+        st.dataframe(payload["person_summary"], use_container_width=True)
+    if show_detail and not payload["detail"].empty:
+        st.subheader("Detail")
+        st.dataframe(payload["detail"], use_container_width=True)
+    st.markdown("---")
+
+if not report["full_detail"].empty:
+    csv = report["full_detail"].to_csv(index=False).encode("utf-8")
+    st.download_button(
+        "Download filtered detail (CSV)",
+        data=csv,
+        file_name=f"workorder_detail_{selected_label.replace('/', '-')}.csv",
+        mime="text/csv",
+    )
