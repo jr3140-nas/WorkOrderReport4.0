@@ -281,7 +281,7 @@ try:
 except Exception as _e:
     # If chart creation fails, continue with tables only
     story.append(Paragraph(f"[Chart generation error: {_e}]", styles["Normal"]))
-; story.append(Spacer(1, 8))
+ story.append(Spacer(1, 8))
 
     doc.build(story)
     buffer.seek(0)
