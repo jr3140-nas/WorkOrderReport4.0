@@ -326,7 +326,7 @@ st.title("Work Order Reporting App")
 
 with st.sidebar:
     st.header("Upload file")
-    time_file = st.file_uploader("Time on Work Order (.xlsx) - REQUIRED", type=["xlsx"], key="time_upload", label_visibility="visible"
+    time_file = st.file_uploader("Time on Work Order (.xlsx) - REQUIRED", type=["xlsx"], key="time_upload", label_visibility="visible")
 
 if not time_file:
     st.sidebar.info("⬆️ Upload the **Time on Work Order** export to proceed.")
