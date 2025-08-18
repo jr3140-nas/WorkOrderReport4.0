@@ -8,7 +8,7 @@ import streamlit as st
 
 # PDF
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
@@ -171,12 +171,59 @@ def _auto_height(df: pd.DataFrame) -> int:
     header_px = 40
     return min(header_px + rows * row_px, 20000)
 
-# ---------- PDF builder with wrapping & fit-to-width ----------
+# ---------- PDF builder helpers ----------
 def _df_for_pdf(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     if "Sum of Hours" in out.columns:
         out["Sum of Hours"] = pd.to_numeric(out["Sum of Hours"], errors="coerce").fillna(0).map(lambda x: f"{x:.2f}")
     return out
+
+# === NEW: Reusable chart + image export for PDF ===
+def make_hours_by_type_chart(df_detail: pd.DataFrame):
+    """
+    Build a bar chart of total hours by Work Order Type.
+    Uses the same color mapping as the on-screen dashboard.
+    """
+    import altair as alt
+    if df_detail is None or df_detail.empty:
+        return None
+    df = df_detail.copy()
+    df["Sum of Hours"] = pd.to_numeric(df["Sum of Hours"], errors="coerce").fillna(0.0)
+    agg = (df.groupby("Type", dropna=False)["Sum of Hours"]
+             .sum()
+             .reset_index()
+             .rename(columns={"Sum of Hours": "hours"})
+             .sort_values("hours", ascending=False))
+    base = alt.Chart(agg).encode(
+        x=alt.X("Type:N", sort="-y", title="Work Order Type"),
+        y=alt.Y("hours:Q", title="Hours"),
+        tooltip=[alt.Tooltip("Type:N"), alt.Tooltip("hours:Q", format=".2f")]
+    )
+    # Use same color mapping if defined below
+    try:
+        color_domain = list(_TYPE_COLORS.keys())
+        color_range = list(_TYPE_COLORS.values())
+        color = alt.Color("Type:N", scale=alt.Scale(domain=color_domain, range=color_range))
+        return base.mark_bar().encode(color=color)
+    except Exception:
+        return base.mark_bar()
+
+def altair_to_png_bytes(chart, scale: float = 2.0) -> bytes | None:
+    """
+    Convert an Altair chart to PNG bytes using altair-saver + vl-convert-python.
+    Returns None if conversion fails (fail-soft).
+    """
+    if chart is None:
+        return None
+    try:
+        from altair_saver import save
+        buf = io.BytesIO()
+        save(chart, fp=buf, fmt="png", scale=scale)  # chooses vl-convert backend if installed
+        buf.seek(0)
+        return buf.read()
+    except Exception:
+        return None
+# === END NEW ===
 
 def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
     buffer = io.BytesIO()
@@ -188,6 +235,20 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
     story = []
     title = Paragraph(f"<b>Work Order Reporting App</b> — Report for {date_label}", styles["Title"])
     story.append(title); story.append(Spacer(1, 6))
+
+    # --- NEW: All-crafts dashboard image on page 1 ---
+    full_df = report.get("full_detail")
+    if full_df is not None and not getattr(full_df, "empty", True):
+        chart = make_hours_by_type_chart(full_df)
+        png = altair_to_png_bytes(chart, scale=2.0)
+        if png:
+            page_width, _ = landscape(letter)
+            usable = page_width - doc.leftMargin - doc.rightMargin
+            img = RLImage(io.BytesIO(png))
+            img._restrictSize(usable, 260)  # keep aspect ratio, cap height
+            story.append(Paragraph("<b>Hours by Work Order Type — All Crafts</b>", styles["Heading2"]))
+            story.append(img); story.append(Spacer(1, 10))
+    # --- END NEW ---
 
     # Column widths (Description reduced to 300)
     px_widths = [200, 90, 90, 200, 300, 420]
@@ -201,6 +262,18 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
     for craft_name, payload in report["groups"]:
         story.append(Paragraph(f"<b>{craft_name}</b>", styles["Heading2"]))
         df = _df_for_pdf(payload["detail"])
+
+        # --- NEW: per-craft chart image (fail-soft) ---
+        try:
+            c_png = altair_to_png_bytes(make_hours_by_type_chart(payload["detail"]), scale=2.0)
+        except Exception:
+            c_png = None
+        if c_png:
+            c_img = RLImage(io.BytesIO(c_png))
+            c_img._restrictSize(usable, 220)
+            story.append(c_img); story.append(Spacer(1, 6))
+        # --- END NEW ---
+
         data = []
         headers = [Paragraph(h, header_style) for h in df.columns]
         data.append(headers)
@@ -238,9 +311,6 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
 
 # === Mini-dashboard helpers (hours-only) ===
 import altair as alt
-import pandas as pd
-import numpy as np
-import streamlit as st
 
 _TYPE_COLORS = {
     "Break In": "#d62728",
@@ -315,10 +385,9 @@ def _style_types(df):
     try:
         return df.style.applymap(_style_cell, subset=["Type"])
     except Exception:
-        # Fallback: return unstyled if Styler isn't supported in the running Streamlit version
+        # Fallback: return unstyled if Styler isn't supported
         return df
 # === End table styling ===
-
 
 
 st.set_page_config(page_title="Work Order Reporting App", layout="wide")
