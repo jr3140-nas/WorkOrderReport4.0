@@ -12,10 +12,33 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-# ---- Hard-coded mappings (from your uploaded files at build time) ----
-CRAFT_ORDER = ['Turns', 'EAF Mech Days', 'EAF Elec Days', 'AOD Mech Days', 'AOD Elec Days', 'Alloy Mech Days', 'Caster Mech Days', 'Caster Elec Days', 'WTP Mech Days', 'Baghouse Mech Days', 'Preheater Elec Days', 'Segment Shop', 'Utilities Mech Days', 'HVAC Elec Days']
-ADDRESS_BOOK = [{'AddressBookNumber': '1103079', 'Name': 'CONKEL, JOHNATHON J', 'Craft Description': 'Alloy Mech Days'}, {'AddressBookNumber': '817150', 'Name': 'PETERS, JESSE DANIEL', 'Craft Description': 'AOD Elec Days'}, {'AddressBookNumber': '648991', 'Name': 'JONES, TERRELL D.', 'Craft Description': 'AOD Elec Days'}, {'AddressBookNumber': '136792', 'Name': 'MCKINNEY, CHRIS ALVIE', 'Craft Description': 'AOD Mech Days'}, {'AddressBookNumber': '1142730', 'Name': 'CHRISTERSON, NATHANIEL BENJAMEN', 'Craft Description': 'Baghouse Mech Days'}, {'AddressBookNumber': '1150094', 'Name': 'WRIGHT, KEVIN BRADLEY', 'Craft Description': 'Baghouse Mech Days'}, {'AddressBookNumber': '1064305', 'Name': 'DALTON II, JEFFERY WAYNE', 'Craft Description': 'Caster Elec Days'}, {'AddressBookNumber': '1115109', 'Name': 'GANDER, ANTHONY T', 'Craft Description': 'Caster Elec Days'}, {'AddressBookNumber': '1055943', 'Name': 'HEFFELMIRE, RONALD SCOTT', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '1112813', 'Name': 'KOONS, ANDREW LEWIS ALAN', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '95636', 'Name': 'MORRISON, GEORGE D.', 'Craft Description': 'Caster Mech Days'}, {'AddressBookNumber': '586013', 'Name': 'DENNIS, SHAWN MICHAEL', 'Craft Description': 'EAF Elec Days'}, {'AddressBookNumber': '1137121', 'Name': 'STEWART, THOMAS JASON', 'Craft Description': 'EAF Mech Days'}, {'AddressBookNumber': '1106595', 'Name': 'WASH, MICHAEL DAVID', 'Craft Description': 'EAF Mech Days'}, {'AddressBookNumber': '178909', 'Name': 'LEMASTER, DANIEL M.', 'Craft Description': 'HVAC Elec Days'}, {'AddressBookNumber': '1115133', 'Name': 'BROCK, TREVOR COLE', 'Craft Description': 'Preheater Elec Days'}, {'AddressBookNumber': '133760', 'Name': 'BRIGHTWELL, JEFFERY W.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '173665', 'Name': 'CRAIG, JAMES D.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '336719', 'Name': 'DEEN, ALAN J.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1151409', 'Name': 'DEMAREE, MATTHEW CHRISTOPHER', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '848802', 'Name': 'KLOSS, CHARLES W.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '95644', 'Name': 'SMITH, JAMES M.', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1104469', 'Name': 'WATSON, JACOB LEYTON', 'Craft Description': 'Segment Shop'}, {'AddressBookNumber': '1103976', 'Name': 'BAUGHMAN, THOMAS BRUCE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1066095', 'Name': 'HELTON, MICHAEL AJ', 'Craft Description': 'Turns'}, {'AddressBookNumber': '44231', 'Name': 'REED, BRIAN L.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1167030', 'Name': 'STROUD, MATTHEW T.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '164380', 'Name': 'WARREN, MARK L.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '185050', 'Name': 'WHOBREY, BRADLEY G.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1103132', 'Name': 'WILLIAMS II, STEVEN FOSTER', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1106747', 'Name': 'BANTA, BENJAMIN GAYLE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1165384', 'Name': 'BOHART, WILLIAM M.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1144250', 'Name': 'CAREY, JOSEPH MICHAEL', 'Craft Description': 'Turns'}, {'AddressBookNumber': '770363', 'Name': 'CORMAN, DAVID H.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1149608', 'Name': 'DIEDERICH, JOSEPH W', 'Craft Description': 'Turns'}, {'AddressBookNumber': '193471', 'Name': 'GRAY, DENNIS C.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '109866', 'Name': 'HOWARD, LARRY D.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1141761', 'Name': 'PHILLIPS, TIMOTHY CRAIG RYAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '272006', 'Name': 'SEE, JOHN JOURDAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '106260', 'Name': 'SPILLMAN, WILLIAM H.', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1131299', 'Name': 'STEWART, BRADFORD LEE', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1109876', 'Name': 'STOKES, MATHEW DAVID', 'Craft Description': 'Turns'}, {'AddressBookNumber': '234448', 'Name': 'THOMAS, CODY JORDAN', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1107352', 'Name': 'WATKINS, KENNETH EDWARD', 'Craft Description': 'Turns'}, {'AddressBookNumber': '1096665', 'Name': 'ATWELL, TALON BRADLEY', 'Craft Description': 'Turns'}, {'AddressBookNumber': '108986', 'Name': 'ROGERS, CHARLES D.', 'Craft Description': 'Utilities Mech Days'}, {'AddressBookNumber': '206092', 'Name': 'TURNER, SHANE M.', 'Craft Description': 'Utilities Mech Days'}, {'AddressBookNumber': '1089377', 'Name': 'ROSE, CAMERON CHASE', 'Craft Description': 'WTP Mech Days'}]
-TYPE_MAP = {'0': 'Break In', '1': 'Maintenance Order', '2': 'Material Repair TMJ Order', '3': 'Capital Project', '4': 'Urgent Corrective', '5': 'Emergency Order', '6': 'PM Restore/Replace', '7': 'PM Inspection', '8': 'Follow Up Maintenance Order', '9': 'Standing W.O. - Do not Delete', 'B': 'Marketing', 'C': 'Cost Improvement', 'D': 'Design Work - ETO', 'E': 'Plant Work - ETO', 'G': 'Governmental/Regulatory', 'M': 'Model W.O. - Eq Mgmt', 'N': 'Template W.O. - CBM Alerts', 'P': 'Project', 'R': 'Rework Order', 'S': 'Shop Order', 'T': 'Tool Order', 'W': 'Case', 'X': 'General Work Request', 'Y': 'Follow Up Work Request', 'Z': 'System Work Request'}
+# Charts
+import altair as alt
+
+# ----------------- Static mappings (adapt to your env if needed) -----------------
+CRAFT_ORDER = [
+    'Turns', 'EAF Mech Days', 'EAF Elec Days', 'AOD Mech Days', 'AOD Elec Days',
+    'Alloy Mech Days', 'Caster Mech Days', 'Caster Elec Days', 'WTP Mech Days',
+    'Baghouse Mech Days', 'Preheater Elec Days', 'Segment Shop',
+    'Utilities Mech Days', 'HVAC Elec Days'
+]
+
+# Minimal address book sample; replace with your actual source or keep as-is if you upload Time report with names.
+ADDRESS_BOOK = [
+    {'AddressBookNumber': '1103079', 'Name': 'CONKEL, JOHNATHON J', 'Craft Description': 'Alloy Mech Days'},
+    {'AddressBookNumber': '817150',  'Name': 'PETERS, JESSE DANIEL',   'Craft Description': 'AOD Elec Days'},
+]
+
+TYPE_MAP = {
+    '0': 'Break In', '1': 'Maintenance Order', '2': 'Material Repair TMJ Order',
+    '3': 'Capital Project', '4': 'Urgent Corrective', '5': 'Emergency Order',
+    '6': 'PM Restore/Replace', '7': 'PM Inspection', '8': 'Follow Up Maintenance Order',
+    '9': 'Standing W.O. - Do not Delete', 'B': 'Marketing', 'C': 'Cost Improvement',
+    'D': 'Design Work - ETO', 'E': 'Plant Work - ETO', 'G': 'Governmental/Regulatory',
+    'M': 'Model W.O. - Eq Mgmt', 'N': 'Template W.O. - CBM Alerts', 'P': 'Project',
+    'R': 'Rework Order', 'S': 'Shop Order', 'T': 'Tool Order', 'W': 'Case',
+    'X': 'General Work Request', 'Y': 'Follow Up Work Request', 'Z': 'System Work Request'
+}
 
 DISPLAY_COLUMNS = ["Name", "Work Order #", "Sum of Hours", "Type", "Description", "Problem"]
 
@@ -25,6 +48,7 @@ REQUIRED_TIME_COLUMNS = [
     "Department", "Location", "Equipment", "PM Number", "PM"
 ]
 
+# ----------------- Load & normalize data -----------------
 def _find_header_row(df_raw: pd.DataFrame) -> int:
     first_col = df_raw.columns[0]
     mask = df_raw[first_col].astype(str).str.strip() == "AddressBookNumber"
@@ -56,7 +80,7 @@ def load_timeworkbook(file_like) -> pd.DataFrame:
     if "Production Date" in df.columns:
         df["Production Date"] = pd.to_datetime(df["Production Date"], errors="coerce").dt.date
 
-    # Normalize 'Sum of Hours'
+    # Normalize hours
     if "Sum of Hours" in df.columns:
         df["Sum of Hours"] = pd.to_numeric(df["Sum of Hours"], errors="coerce")
     elif "Sum of Hours." in df.columns:
@@ -66,7 +90,7 @@ def load_timeworkbook(file_like) -> pd.DataFrame:
     else:
         df["Sum of Hours"] = pd.NA
 
-    # Normalize work order into 'Work Order #'
+    # Normalize work order #
     if "Work Order Number" in df.columns:
         base_wo = df["Work Order Number"]
     elif "OrderNumber" in df.columns:
@@ -171,20 +195,27 @@ def _auto_height(df: pd.DataFrame) -> int:
     header_px = 40
     return min(header_px + rows * row_px, 20000)
 
-# ---------- PDF builder helpers ----------
+# ----------------- PDF helpers & chart export -----------------
 def _df_for_pdf(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     if "Sum of Hours" in out.columns:
         out["Sum of Hours"] = pd.to_numeric(out["Sum of Hours"], errors="coerce").fillna(0).map(lambda x: f"{x:.2f}")
     return out
 
-# === NEW: Reusable chart + image export for PDF ===
+# Shared type colors for dashboard and PDF charts
+_TYPE_COLORS = {
+    "Break In": "#d62728",
+    "Maintenance Order": "#1f77b4",
+    "Urgent Corrective": "#ff7f0e",
+    "Emergency Order": "#d62728",
+    "PM Restore/Replace": "#2ca02c",
+    "PM Inspection": "#2ca02c",
+    "Follow Up Maintenance Order": "#d4c720",
+    "Project": "#9467bd"
+}
+
 def make_hours_by_type_chart(df_detail: pd.DataFrame):
-    """
-    Build a bar chart of total hours by Work Order Type.
-    Uses the same color mapping as the on-screen dashboard.
-    """
-    import altair as alt
+    """Build a bar chart of total hours by Type with consistent colors."""
     if df_detail is None or df_detail.empty:
         return None
     df = df_detail.copy()
@@ -194,19 +225,15 @@ def make_hours_by_type_chart(df_detail: pd.DataFrame):
              .reset_index()
              .rename(columns={"Sum of Hours": "hours"})
              .sort_values("hours", ascending=False))
+    if agg.empty:
+        return None
     base = alt.Chart(agg).encode(
         x=alt.X("Type:N", sort="-y", title="Work Order Type"),
         y=alt.Y("hours:Q", title="Hours"),
         tooltip=[alt.Tooltip("Type:N"), alt.Tooltip("hours:Q", format=".2f")]
     )
-    # Use same color mapping if defined below
-    try:
-        color_domain = list(_TYPE_COLORS.keys())
-        color_range = list(_TYPE_COLORS.values())
-        color = alt.Color("Type:N", scale=alt.Scale(domain=color_domain, range=color_range))
-        return base.mark_bar().encode(color=color)
-    except Exception:
-        return base.mark_bar()
+    color_scale = alt.Scale(domain=list(_TYPE_COLORS.keys()), range=list(_TYPE_COLORS.values()))
+    return base.mark_bar().encode(color=alt.Color("Type:N", scale=color_scale))
 
 def altair_to_png_bytes(chart, scale: float = 2.0) -> bytes | None:
     """
@@ -218,29 +245,36 @@ def altair_to_png_bytes(chart, scale: float = 2.0) -> bytes | None:
     try:
         from altair_saver import save
         buf = io.BytesIO()
-        save(chart, fp=buf, fmt="png", scale=scale)  # chooses vl-convert backend if installed
+        save(chart, fp=buf, fmt="png", scale=scale)  # uses vl-convert backend if installed
         buf.seek(0)
         return buf.read()
     except Exception:
         return None
-# === END NEW ===
 
 def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), leftMargin=24, rightMargin=24, topMargin=28, bottomMargin=24)
+    doc = SimpleDocTemplate(
+        buffer, pagesize=landscape(letter),
+        leftMargin=24, rightMargin=24, topMargin=28, bottomMargin=24
+    )
     styles = getSampleStyleSheet()
-    cell_style = ParagraphStyle("cell", parent=styles["Normal"], fontName="Helvetica", fontSize=8, leading=10, wordWrap="CJK", spaceBefore=0, spaceAfter=0)
-    header_style = ParagraphStyle("header", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=9, leading=11, spaceBefore=0, spaceAfter=0)
+    cell_style = ParagraphStyle("cell", parent=styles["Normal"], fontName="Helvetica",
+                                fontSize=8, leading=10, wordWrap="CJK", spaceBefore=0, spaceAfter=0)
+    header_style = ParagraphStyle("header", parent=styles["Normal"], fontName="Helvetica-Bold",
+                                  fontSize=9, leading=11, spaceBefore=0, spaceAfter=0)
 
     story = []
     title = Paragraph(f"<b>Work Order Reporting App</b> — Report for {date_label}", styles["Title"])
     story.append(title); story.append(Spacer(1, 6))
 
-    # --- NEW: All-crafts dashboard image on page 1 ---
+    # --------- All-crafts dashboard image on page 1 ---------
     full_df = report.get("full_detail")
     if full_df is not None and not getattr(full_df, "empty", True):
-        chart = make_hours_by_type_chart(full_df)
-        png = altair_to_png_bytes(chart, scale=2.0)
+        try:
+            chart = make_hours_by_type_chart(full_df)
+            png = altair_to_png_bytes(chart, scale=2.0)
+        except Exception:
+            png = None
         if png:
             page_width, _ = landscape(letter)
             usable = page_width - doc.leftMargin - doc.rightMargin
@@ -248,22 +282,21 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
             img._restrictSize(usable, 260)  # keep aspect ratio, cap height
             story.append(Paragraph("<b>Hours by Work Order Type — All Crafts</b>", styles["Heading2"]))
             story.append(img); story.append(Spacer(1, 10))
-    # --- END NEW ---
 
-    # Column widths (Description reduced to 300)
-    px_widths = [200, 90, 90, 200, 300, 420]
+    # --------- Table layout ---------
+    px_widths = [200, 90, 90, 200, 300, 420]  # Description reduced to 300 px
     page_width, _ = landscape(letter)
     usable = page_width - doc.leftMargin - doc.rightMargin
     scale = usable / sum(px_widths)
     col_widths = [w * scale for w in px_widths]
-
     header_bg = colors.HexColor("#f0f0f0"); grid_color = colors.HexColor("#d0d0d0")
 
+    # --------- Per-craft sections ---------
     for craft_name, payload in report["groups"]:
         story.append(Paragraph(f"<b>{craft_name}</b>", styles["Heading2"]))
         df = _df_for_pdf(payload["detail"])
 
-        # --- NEW: per-craft chart image (fail-soft) ---
+        # Per-craft chart (fail-soft)
         try:
             c_png = altair_to_png_bytes(make_hours_by_type_chart(payload["detail"]), scale=2.0)
         except Exception:
@@ -272,7 +305,6 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
             c_img = RLImage(io.BytesIO(c_png))
             c_img._restrictSize(usable, 220)
             story.append(c_img); story.append(Spacer(1, 6))
-        # --- END NEW ---
 
         data = []
         headers = [Paragraph(h, header_style) for h in df.columns]
@@ -308,88 +340,7 @@ def build_pdf(report: Dict[str, Any], date_label: str) -> bytes:
     buffer.seek(0)
     return buffer.read()
 
-
-# === Mini-dashboard helpers (hours-only) ===
-import altair as alt
-
-_TYPE_COLORS = {
-    "Break In": "#d62728",
-    "Maintenance Order": "#1f77b4",
-    "Urgent Corrective": "#ff7f0e",
-    "Emergency Order": "#d62728",
-    "PM Restore/Replace": "#2ca02c",
-    "PM Inspection": "#2ca02c",
-    "Follow Up Maintenance Order": "#d4c720",
-    "Project": "#9467bd"
-}
-
-def _craft_dashboard_block(df_detail: pd.DataFrame):
-    if df_detail is None or df_detail.empty:
-        return
-    df = df_detail.copy()
-    df["Sum of Hours"] = pd.to_numeric(df["Sum of Hours"], errors="coerce").fillna(0.0)
-    agg = (df.groupby("Type", dropna=False)["Sum of Hours"]
-             .sum()
-             .reset_index()
-             .rename(columns={"Sum of Hours": "hours"})
-             .sort_values("hours", ascending=False))
-    total = float(agg["hours"].sum())
-    if total <= 0:
-        total = 0.0
-    agg["percent"] = np.where(total > 0, (agg["hours"]/total)*100.0, 0.0)
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Total Hours", f"{total:,.2f}")
-    top_type = agg.iloc[0]["Type"] if not agg.empty else "-"
-    top_pct  = agg.iloc[0]["percent"] if not agg.empty else 0.0
-    c2.metric("Top Type", f"{top_type}")
-    c3.metric("% in Top Type", f"{top_pct:.1f}%")
-
-    base = alt.Chart(agg).encode(
-        x=alt.X("Type:N", sort="-y", title="Work Order Type"),
-        tooltip=[alt.Tooltip("Type:N"),
-                 alt.Tooltip("hours:Q", format=".2f")]
-    )
-    color_scale = alt.Scale(domain=list(_TYPE_COLORS.keys()),
-                            range=list(_TYPE_COLORS.values()))
-
-    st.caption("Hours by Work Order Type")
-    st.altair_chart(
-        base.mark_bar().encode(y=alt.Y("hours:Q", title="Hours"),
-                               color=alt.Color("Type:N", scale=color_scale)),
-        use_container_width=True
-    )
-
-    st.caption("Breakdown (Hours & % of Craft Total)")
-    st.dataframe(agg[["Type", "hours"]], use_container_width=True, hide_index=True)
-# === End helpers ===
-
-# === Table styling for Type colors ===
-_TYPE_COLORS = {
-    "Break In": "#d62728",
-    "Maintenance Order": "#1f77b4",
-    "Urgent Corrective": "#ff7f0e",
-    "Emergency Order": "#d62728",
-    "PM Restore/Replace": "#2ca02c",
-    "PM Inspection": "#2ca02c",
-    "Follow Up Maintenance Order": "#d4c720",
-    "Project": "#9467bd",
-}
-
-def _style_types(df):
-    if df is None or df.empty or "Type" not in df.columns:
-        return df
-    def _style_cell(v):
-        color = _TYPE_COLORS.get(str(v), None)
-        return f"background-color: {color}; color: white; font-weight: 600;" if color else ""
-    try:
-        return df.style.applymap(_style_cell, subset=["Type"])
-    except Exception:
-        # Fallback: return unstyled if Styler isn't supported
-        return df
-# === End table styling ===
-
-
+# ----------------- Streamlit UI -----------------
 st.set_page_config(page_title="Work Order Reporting App", layout="wide")
 st.title("Work Order Reporting App")
 
@@ -401,6 +352,7 @@ if not time_file:
     st.sidebar.info("⬆️ Upload the **Time on Work Order** export to proceed.")
     st.stop()
 
+# Load inputs
 try:
     time_df = load_timeworkbook(time_file)
     craft_df = get_craft_order_df()
@@ -419,33 +371,95 @@ label_to_date = dict(zip(date_labels, dates))
 selected_label = st.selectbox("Select Production Date", options=date_labels, index=len(date_labels)-1)
 selected_date = label_to_date[selected_label]
 
-report = prepare_report_data(time_df, addr_df, craft_df, selected_date)
+# Build current report for on-screen view (not for PDF generation timing)
+report_preview = prepare_report_data(time_df, addr_df, craft_df, selected_date)
 
-st.sidebar.subheader("Export")
-st.sidebar.download_button(
-    "Generate & Download PDF (Landscape)",
-    data=build_pdf(report, selected_label),
-    file_name=f"workorder_report_{selected_label.replace('/', '-')}.pdf",
-    mime="application/pdf",
-)
+# ----------------- NEW: Two-step PDF flow to avoid stale bytes -----------------
+if "pdf_bytes" not in st.session_state:
+    st.session_state.pdf_bytes = None
+if "pdf_label" not in st.session_state:
+    st.session_state.pdf_label = None
 
+def build_pdf_now():
+    # Recompute JUST-IN-TIME to ensure charts & data match current selection
+    fresh_report = prepare_report_data(time_df, addr_df, craft_df, selected_date)
+    st.session_state.pdf_label = selected_label
+    st.session_state.pdf_bytes = build_pdf(fresh_report, selected_label)
+
+with st.sidebar:
+    st.subheader("Export")
+    st.button("Build PDF with charts", on_click=build_pdf_now)
+
+    # Optional: quick self-test for headless chart export (visible in the sidebar)
+    with st.expander("Chart export self-test"):
+        try:
+            from altair_saver import save
+            _df = pd.DataFrame({"Type": ["A", "B"], "hours": [1, 2]})
+            _chart = alt.Chart(_df).mark_bar().encode(x="Type:N", y="hours:Q")
+            _buf = io.BytesIO()
+            save(_chart, fp=_buf, fmt="png", scale=1.5)
+            st.caption("Altair PNG export: ✅ OK")
+        except Exception as e:
+            st.error(f"Altair PNG export failed: {e}")
+            st.info("Ensure requirements include: altair-saver, vl-convert-python")
+
+    if st.session_state.pdf_bytes is not None:
+        st.success(f"PDF ready for {st.session_state.pdf_label}")
+        st.download_button(
+            "Download PDF (Landscape)",
+            data=st.session_state.pdf_bytes,
+            file_name=f"workorder_report_{st.session_state.pdf_label.replace('/', '-')}.pdf",
+            mime="application/pdf",
+            key="download_pdf_ready",
+        )
+
+# ----------------- On-screen dashboard & tables -----------------
 st.markdown(f"### Report for {selected_label}")
 
+# Per-craft on-screen mini dashboard and table
 col_cfg = {
     "Name": st.column_config.TextColumn("Name", width=200),
     "Work Order #": st.column_config.TextColumn("Work Order #", width=90),
     "Sum of Hours": st.column_config.NumberColumn("Sum of Hours", format="%.2f", width=90),
     "Type": st.column_config.TextColumn("Type", width=200),
-    "Description": st.column_config.TextColumn("Description", width=300),  # reduced to 300 px
+    "Description": st.column_config.TextColumn("Description", width=300),
     "Problem": st.column_config.TextColumn("Problem", width=420),
 }
 
-for craft_name, payload in report["groups"]:
+def _craft_dashboard_block(df_detail: pd.DataFrame):
+    if df_detail is None or df_detail.empty:
+        return
+    df = df_detail.copy()
+    df["Sum of Hours"] = pd.to_numeric(df["Sum of Hours"], errors="coerce").fillna(0.0)
+    agg = (df.groupby("Type", dropna=False)["Sum of Hours"]
+             .sum()
+             .reset_index()
+             .rename(columns={"Sum of Hours": "hours"})
+             .sort_values("hours", ascending=False))
+    total = float(agg["hours"].sum())
+    agg["percent"] = np.where(total > 0, (agg["hours"]/max(total, 1e-9))*100.0, 0.0)
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Total Hours", f"{total:,.2f}")
+    top_type = agg.iloc[0]["Type"] if not agg.empty else "-"
+    top_pct  = agg.iloc[0]["percent"] if not agg.empty else 0.0
+    c2.metric("Top Type", f"{top_type}")
+    c3.metric("% in Top Type", f"{top_pct:.1f}%")
+
+    base = alt.Chart(agg).encode(
+        x=alt.X("Type:N", sort="-y", title="Work Order Type"),
+        y=alt.Y("hours:Q", title="Hours"),
+        tooltip=[alt.Tooltip("Type:N"), alt.Tooltip("hours:Q", format=".2f")]
+    )
+    color_scale = alt.Scale(domain=list(_TYPE_COLORS.keys()), range=list(_TYPE_COLORS.values()))
+    st.altair_chart(base.mark_bar().encode(color=alt.Color("Type:N", scale=color_scale)), use_container_width=True)
+
+for craft_name, payload in report_preview["groups"]:
     st.markdown(f"#### {craft_name}")
     df_detail = payload["detail"]
     _craft_dashboard_block(df_detail)
     st.dataframe(
-        _style_types(df_detail),
+        df_detail,
         use_container_width=True,
         hide_index=True,
         height=_auto_height(df_detail),
@@ -453,8 +467,9 @@ for craft_name, payload in report["groups"]:
     )
     st.markdown("---")
 
-if not report["full_detail"].empty:
-    csv = report["full_detail"].to_csv(index=False).encode("utf-8")
+# CSV export of filtered detail
+if not report_preview["full_detail"].empty:
+    csv = report_preview["full_detail"].to_csv(index=False).encode("utf-8")
     st.download_button(
         "Download filtered detail (CSV)",
         data=csv,
