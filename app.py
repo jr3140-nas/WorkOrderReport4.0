@@ -623,7 +623,7 @@ def _craft_dashboard_block(df_detail: pd.DataFrame) -> None:
     chart = base.mark_bar(size=50).encode(
         y=alt.Y("hours:Q", title="Hours"),
         color=alt.Color("Type:N", scale=color_scale),
-    ).properties(width=450)
+    ).properties(width=400)
     st.altair_chart(chart)
     # Prepare breakdown table showing only hours with exactly two decimal places.  Convert
     # numeric values to strings so Streamlit will left‑align them.  This avoids the
